@@ -1,6 +1,7 @@
 package com.sgnatiuk.queue;
 
 import java.util.AbstractQueue;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.StringJoiner;
 
@@ -16,6 +17,13 @@ public class MostRecentlyInsertedQueue<T> extends AbstractQueue<T> {
 
     public MostRecentlyInsertedQueue(int maxCapacity) {
         this.maxCapacity = maxCapacity;
+    }
+
+    public MostRecentlyInsertedQueue(Collection<T> data) {
+        maxCapacity = data.size();
+        for (T t : data) {
+            offer(t);
+        }
     }
 
     public Iterator<T> iterator() {
@@ -42,13 +50,19 @@ public class MostRecentlyInsertedQueue<T> extends AbstractQueue<T> {
     }
 
     public T poll() {
+        if (size == 0)
+            return null;
+
         T value = head.value;
         head = head.next;
         size--;
+        if(size < 2) tail = head;
         return value;
     }
 
     public T peek() {
+        if (size == 0)
+            return null;
         return head.value;
     }
 
@@ -92,19 +106,5 @@ public class MostRecentlyInsertedQueue<T> extends AbstractQueue<T> {
         return new StringBuilder("MostRecentlyInsertedQueue{")
                 .append(joiner)
                 .append('}').toString();
-    }
-
-    public static void main(String[] args) {
-        MostRecentlyInsertedQueue<Integer> queue = new MostRecentlyInsertedQueue<>(5);
-        System.out.println(queue);
-        queue.add(1);
-        System.out.println(queue);
-        queue.poll();
-        System.out.println(queue);
-        for (int i = 0; i < 10; i++) {
-
-            queue.add(i);
-            System.out.println(queue);
-        }
     }
 }

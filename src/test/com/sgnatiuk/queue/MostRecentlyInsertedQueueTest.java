@@ -26,6 +26,38 @@ public class MostRecentlyInsertedQueueTest{
     }
 
     @Test
+    public void testPeek(){
+        MostRecentlyInsertedQueue<Integer> queue = new MostRecentlyInsertedQueue<>(data);
+        int firstElement = data.get(0);
+        for (int i = 0; i < data.size(); i++) {
+            assertTrue(queue.peek() == firstElement);
+            assertEquals(data.size(), queue.size());
+        }
+    }
+
+    @Test
+    public void testPoll(){
+        // fill queue -> poll all -> fill again -> poll all
+        MostRecentlyInsertedQueue<Integer> queue = new MostRecentlyInsertedQueue<>(data);
+        pollAndVerifyAll(queue);
+
+        for (Integer integer : data) {
+            queue.offer(integer);
+        }
+
+        pollAndVerifyAll(queue);
+    }
+
+    private void pollAndVerifyAll(MostRecentlyInsertedQueue<Integer> queue) {
+        for (int i = 0; i < data.size(); i++) {
+            assertTrue(queue.poll() == data.get(i));
+            assertEquals(data.size()-i-1, queue.size());
+        }
+        assertTrue(null == queue.poll());
+        assertEquals(0, queue.size());
+    }
+
+    @Test
     public void testQueueCapacity(){
         int capacity = 10;
         MostRecentlyInsertedQueue<Integer> queue = new MostRecentlyInsertedQueue<>(capacity);
