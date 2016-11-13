@@ -8,22 +8,20 @@ import java.util.StringJoiner;
 /**
  * Created by sgnatiuk on 11/9/16.
  */
-public class MostRecentlyInsertedQueue<T> extends AbstractQueue<T> {
+public class ConcurrentMostRecentlyInsertedQueue<T> extends AbstractQueue<T> {
 
     private Node<T> head;
     private Node<T> tail;
     private int size = 0;
     private int maxCapacity;
 
-    public MostRecentlyInsertedQueue(int maxCapacity) {
+    public ConcurrentMostRecentlyInsertedQueue(int maxCapacity) {
         this.maxCapacity = maxCapacity;
     }
 
-    public MostRecentlyInsertedQueue(Collection<T> data) {
+    public ConcurrentMostRecentlyInsertedQueue(Collection<T> data) {
         maxCapacity = data.size();
-        for (T t : data) {
-            offer(t);
-        }
+        addAll(data);
     }
 
     public Iterator<T> iterator() {
@@ -35,21 +33,25 @@ public class MostRecentlyInsertedQueue<T> extends AbstractQueue<T> {
     }
 
     public boolean offer(T t) {
-        if(size == maxCapacity){
-            poll();
+        checkNotNull(t);
+
+        synchronized (this){
+            if(size == maxCapacity){
+                poll();
+            }
+            if(head == null){
+                head = new Node<>(t);
+                tail = head;
+            }else {
+                tail.setNext(new Node<>(t));
+                tail = tail.getNextNode();
+            }
+            size++;
         }
-        if(head == null){
-            head = new Node<>(t);
-            tail = head;
-        }else {
-            tail.setNext(new Node<>(t));
-            tail = tail.getNextNode();
-        }
-        size++;
         return true;
     }
 
-    public T poll() {
+    public synchronized T poll() {
         if (size == 0)
             return null;
 
@@ -60,10 +62,14 @@ public class MostRecentlyInsertedQueue<T> extends AbstractQueue<T> {
         return value;
     }
 
-    public T peek() {
+    public synchronized T peek() {
         if (size == 0)
             return null;
         return head.getValue();
+    }
+
+    private void checkNotNull(T t){
+        if(t == null) throw new NullPointerException();
     }
 
     @Override
