@@ -21,12 +21,11 @@ public class MostRecentlyInsertedQueue<T> extends AbstractQueue<T> {
 
     public MostRecentlyInsertedQueue(Collection<T> data) {
         maxCapacity = data.size();
-        for (T t : data) {
-            offer(t);
-        }
+        addAll(data);
     }
 
     public Iterator<T> iterator() {
+        Node<T> head = this.head;
         return new MostRecentlyInsertedIterator<>(head);
     }
 
@@ -74,8 +73,58 @@ public class MostRecentlyInsertedQueue<T> extends AbstractQueue<T> {
             joiner.add(iterator.next().toString());
         }
 
-        return new StringBuilder("MostRecentlyInsertedQueue{")
+        return new StringBuilder(getClass().getSimpleName())
+                .append('{')
                 .append(joiner)
                 .append('}').toString();
+    }
+
+    private class Node<T>{
+        private T value;
+        private Node next;
+
+        public Node(T value) {
+            this(value, null);
+        }
+
+        public Node(T value, Node next) {
+            this.value = value;
+            this.next = next;
+        }
+
+        public T getValue() {
+            return value;
+        }
+
+        public void setValue(T value) {
+            this.value = value;
+        }
+
+        public Node getNextNode() {
+            return next;
+        }
+
+        public void setNext(Node next) {
+            this.next = next;
+        }
+    }
+
+    private class MostRecentlyInsertedIterator<T> implements Iterator<T> {
+
+        private Node<T> currentNode;
+
+        public MostRecentlyInsertedIterator(Node<T> head) {
+            this.currentNode = head;
+        }
+
+        public boolean hasNext() {
+            return currentNode != null;
+        }
+
+        public T next() {
+            T value = currentNode.getValue();
+            currentNode = currentNode.getNextNode();
+            return value;
+        }
     }
 }
